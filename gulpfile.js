@@ -1,6 +1,18 @@
 var gulp        = require('gulp')
 var browserSync = require('browser-sync').create()
 var sass        = require('gulp-sass')(require('sass'))
+var minify      = require('gulp-minify')
+
+gulp.task('min-js', function() {
+	return gulp.src('js/*.js')
+		.pipe(minify({
+			ext: {
+				min: '.min.js'
+			},
+			ignoreFiles: ['-min.js']
+		}))
+		.pipe(gulp.dest('public/js'))
+})
 
 // Static Server + watching scss/html files
 gulp.task('serve', function() {
@@ -21,4 +33,4 @@ gulp.task('sass', function() {
 		.pipe(browserSync.stream())
 })
 
-gulp.task('default', gulp.series('sass', 'serve'))
+gulp.task('default', gulp.series('sass', 'serve','min-js'))
