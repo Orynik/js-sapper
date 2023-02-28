@@ -1,14 +1,26 @@
+#board {
+  display: flex;
+  flex-flow: row wrap;
+}
+
 .tile {
   width: 17px;
   height: 17px;
   background-image: url("../img/sprite.png");
   background-position: 0 -50px;
+  cursor: pointer;
 }
-.tile--focus {
-  background-position: -33px -50px;
+.tile:hover {
+  opacity: 0.6;
 }
 .tile--flagged {
+  background-position: -33px -50px;
+}
+.tile--focus {
   background-position: -17px -50px;
+}
+.tile--one:hover, .tile--two:hover, .tile--three:hover, .tile--four:hover, .tile--five:hover, .tile--six:hover, .tile--seven:hover, .tile--eight:hover {
+  opacity: 1;
 }
 .tile--one {
   background-position: 0 -67px;

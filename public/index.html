@@ -8,41 +8,14 @@
     <title>Сапер</title>
   </head>
   <body>
-    <div class="tile tile--focus"></div>
-    <div class="tile tile--flagged"></div>
-    <div class="tile"></div>
-    <div class="tile tile--one"></div>
-    <div class="tile tile--two"></div>
-    <div class="tile tile--three"></div>
-    <div class="tile tile--four"></div>
-    <div class="tile tile--five"></div>
-    <div class="tile tile--six"></div>
-    <div class="tile tile--seven"></div>
-    <div class="tile tile--eight"></div>
-
-    <div class="tile tile-bomb"></div>
-    <div class="tile tile-bomb tile-bomb--focus"></div>
-    <div class="tile tile-bomb tile-bomb--disable"></div>
-
-    <div class="tile tile-question"></div>
-    <div class="tile tile-question--focus"></div>
-
-    <div class="start-button"></div>
-    <div class="start-button start-button--focus"></div>
-    <div class="start-button start-button--tile-focus"></div>
-    <div class="start-button start-button--lose"></div>
-    <div class="start-button start-button--win"></div>
-
-    <div class="numeric numeric--zero"></div>
-    <div class="numeric numeric--one"></div>
-    <div class="numeric numeric--two"></div>
-    <div class="numeric numeric--three"></div>
-    <div class="numeric numeric--four"></div>
-    <div class="numeric numeric--five"></div>
-    <div class="numeric numeric--six"></div>
-    <div class="numeric numeric--seven"></div>
-    <div class="numeric numeric--eight"></div>
-    <div class="numeric numeric--nine"></div>
+    <section class="sapper">
+      <div id="game-info"></div>
+      <div
+        id="board"
+        ondragstart="event.preventDefault();"
+        draggable="false"
+      ></div>
+    </section>
   </body>
   <script type="module" src="js/index.min.js"></script>
 </html>

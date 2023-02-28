@@ -1,15 +1,38 @@
+#board {
+  display: flex;
+  flex-flow: row wrap;
+}
+
 .tile {
   width: 17px;
   height: 17px;
   background-image: url('../img/sprite.png');
   background-position: 0 -50px;
-  
-  &--focus{
+  cursor: pointer;
+
+  &:hover{
+    opacity: 0.6;
+  }
+    
+  &--flagged{
     background-position: -33px -50px;
   }
   
-  &--flagged{
+  &--focus{
     background-position: -17px -50px;
+  }
+
+
+  // TODO: Переписать
+  &--one:hover,
+  &--two:hover,
+  &--three:hover,
+  &--four:hover,
+  &--five:hover,
+  &--six:hover,
+  &--seven:hover,
+  &--eight:hover{
+      opacity: 1;
   }
 
   &--one{
