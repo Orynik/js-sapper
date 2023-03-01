@@ -25,30 +25,29 @@ let currentTileId = null
 let isInitialClick = true
 let bombs = new Set()
 let numbers = []
-let boardSize = Math.sqrt(boardTaleCountX)
+let boardSize = 16
 
 
 // Обработчики
-board.addEventListener('mousedown',(e) =>{
-	currentTileId = e.target.id
+// board.addEventListener('mousedown',(e) =>{
+// 	currentTileId = e.target.id
+//
+// 	e.target.classList.add('tile--focus')
+// 	
+// })
 
-	e.target.classList.add('tile--focus')
-	
-})
 
-
-board.addEventListener('mouseup',(e) =>{
-	if((currentTileId !== e.target.id) || e.target.classList.contains('tile--clicked')) return
-
-	if(isInitialClick){
-		setup(e.target)
-		isInitialClick = false
-	}
-	console.log(e.target)
-	clickTile(e.target)
-
-	currentTileId = null
-})
+// board.addEventListener('mouseup',(e) =>{
+// 	if((currentTileId !== e.target.id) || e.target.classList.contains('tile--clicked')) return
+//
+// 	if(isInitialClick){
+// 		setup(e.target)
+// 		isInitialClick = false
+// 	}
+// 	clickTile(e.target)
+//
+// 	currentTileId = null
+// })
 
 // Функции
 function renderTile(){
@@ -69,7 +68,7 @@ function setup(){
 	//Вычисление позиций бомб
 	document.querySelectorAll('.tile').forEach((tile) => {
 		tile.setAttribute('data-tile', `${x},${y}`)
-		let random_boolean = Math.random() < 0.3
+		let random_boolean = Math.random() < 0.2
 
 		if (random_boolean && bombsLeft) {
 			bombsLeft--
@@ -93,14 +92,15 @@ function setup(){
 			x = 0
 			y++
 		}
+
+
+
 	})
 
 	// TODO: Поменять на внутреннее хранилище вместо записи в data-num
 	numbers.forEach(num => {
 		let coords = num.split(',')
-		console.log(coords)
 		let tile = document.querySelectorAll(`[data-tile="${parseInt(coords[0])},${parseInt(coords[1])}"]`)[0]
-		console.log(tile, coords)
 		let dataNum = parseInt(tile.getAttribute('data-num'))
 		if (!dataNum) dataNum = 0
 		tile.setAttribute('data-num', dataNum + 1)
@@ -115,6 +115,7 @@ function setup(){
 	 * @param {DomElement} tale - Обрабатываемая ячейка
 	 */
 function clickTile(tile){
+	console.log(tile)
 	if (tile.classList.contains('tile--checked') || tile.classList.contains('tile--flagged')) return
 	let coordinate = tile.getAttribute('data-tile')
 	if (bombs.has(coordinate)) {
@@ -154,7 +155,7 @@ function checkTile(coordinate){
 			let targetW = document.querySelectorAll(`[data-tile="${x-1},${y}"`)[0]
 			clickTile(targetW, `${x-1},${y}`)
 		}
-		if (x < boardSize - 1) {
+		if (x < 16 - 1) {
 			let targetE = document.querySelectorAll(`[data-tile="${x+1},${y}"`)[0]
 			clickTile(targetE, `${x+1},${y}`)
 		}
@@ -162,7 +163,7 @@ function checkTile(coordinate){
 			let targetN = document.querySelectorAll(`[data-tile="${x},${y-1}"]`)[0]
 			clickTile(targetN, `${x},${y-1}`)
 		}
-		if (y < boardSize - 1) {
+		if (y < 16 - 1) {
 			let targetS = document.querySelectorAll(`[data-tile="${x},${y+1}"]`)[0]
 			clickTile(targetS, `${x},${y+1}`)
 		}
@@ -171,16 +172,16 @@ function checkTile(coordinate){
 			let targetNW = document.querySelectorAll(`[data-tile="${x-1},${y-1}"`)[0]
 			clickTile(targetNW, `${x-1},${y-1}`)
 		}
-		if (x < boardSize - 1 && y < boardSize - 1) {
+		if (x < 16 - 1 && y < 16 - 1) {
 			let targetSE = document.querySelectorAll(`[data-tile="${x+1},${y+1}"`)[0]
 			clickTile(targetSE, `${x+1},${y+1}`)
 		}
 		
-		if (y > 0 && x < boardSize - 1) {
+		if (y > 0 && x < 16 - 1) {
 			let targetNE = document.querySelectorAll(`[data-tile="${x+1},${y-1}"]`)[0]
 			clickTile(targetNE, `${x+1},${y-1}`)
 		}
-		if (x > 0 && y < boardSize - 1) {
+		if (x > 0 && y < 16 - 1) {
 			let targetSW = document.querySelectorAll(`[data-tile="${x-1},${y+1}"`)[0]
 			clickTile(targetSW, `${x-1},${y+1}`)
 		}
@@ -189,19 +190,28 @@ function checkTile(coordinate){
 
 
 function createTile(indexId){
-	let till = document.createElement('div')
-	till.classList.add('tile')
+	let tile = document.createElement('div')
+	tile.classList.add('tile')
 	// till.id = `tile_${indexId}`
 
-	till.addEventListener('mousedown', ()=> {
-		till.classList.add('tile--focus')
+	tile.addEventListener('mousedown', ()=> {
+		tile.classList.add('tile--focus')
 	})
 		
-	till.addEventListener('mouseout', ()=> {
-		till.classList.remove('tile--focus')
+	tile.addEventListener('mouseout', ()=> {
+		tile.classList.remove('tile--focus')
 	})
 
-	board.appendChild(till)
+	tile.addEventListener('click', function(e) {
+		if(isInitialClick){
+			setup(e.target)
+			isInitialClick = false
+		}
+		clickTile(tile)
+
+	})
+
+	board.appendChild(tile)
 }
 
 
