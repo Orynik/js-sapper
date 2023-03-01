@@ -16,7 +16,7 @@
 .tile--flagged {
   background-position: -33px -50px;
 }
-.tile--focus {
+.tile--focus, .tile--checked {
   background-position: -17px -50px;
 }
 .tile--one:hover, .tile--two:hover, .tile--three:hover, .tile--four:hover, .tile--five:hover, .tile--six:hover, .tile--seven:hover, .tile--eight:hover {
