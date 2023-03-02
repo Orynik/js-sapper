@@ -21,33 +21,13 @@ let board = document.getElementById('board')
 
 
 // Рабочие переменные
-let currentTileId = null
 let isInitialClick = true
 let bombs = new Set()
 let numbers = []
 let boardSize = 16
 
 
-// Обработчики
-// board.addEventListener('mousedown',(e) =>{
-// 	currentTileId = e.target.id
-//
-// 	e.target.classList.add('tile--focus')
-// 	
-// })
-
-
-// board.addEventListener('mouseup',(e) =>{
-// 	if((currentTileId !== e.target.id) || e.target.classList.contains('tile--clicked')) return
-//
-// 	if(isInitialClick){
-// 		setup(e.target)
-// 		isInitialClick = false
-// 	}
-// 	clickTile(e.target)
-//
-// 	currentTileId = null
-// })
+let isEndGame = false
 
 // Функции
 function renderTile(){
@@ -58,7 +38,7 @@ function renderTile(){
 	}
 }
 
-function setup(){
+function setup(initialTile){
 	let bombsLeft = bombQty
 
 	let x = 0
@@ -69,8 +49,7 @@ function setup(){
 	document.querySelectorAll('.tile').forEach((tile) => {
 		tile.setAttribute('data-tile', `${x},${y}`)
 		let random_boolean = Math.random() < 0.2
-
-		if (random_boolean && bombsLeft) {
+		if (tile !== initialTile && random_boolean && bombsLeft) {
 			bombsLeft--
 			bombs.add(`${x},${y}`)
 			if (x > 0) numbers.push(`${x-1},${y}`)
@@ -83,7 +62,6 @@ function setup(){
 			
 			if (y > 0 && x < boardTaleCountX - 1) numbers.push(`${x+1},${y-1}`)
 			if (x > 0 && y < boardTaleCountX - 1) numbers.push(`${x-1},${y+1}`)
-			
 		}
 
 		x++
@@ -92,20 +70,18 @@ function setup(){
 			x = 0
 			y++
 		}
-
-
-
 	})
 
 	// TODO: Поменять на внутреннее хранилище вместо записи в data-num
 	numbers.forEach(num => {
 		let coords = num.split(',')
 		let tile = document.querySelectorAll(`[data-tile="${parseInt(coords[0])},${parseInt(coords[1])}"]`)[0]
-		let dataNum = parseInt(tile.getAttribute('data-num'))
-		if (!dataNum) dataNum = 0
-		tile.setAttribute('data-num', dataNum + 1)
-	})
+		let dataNum = parseInt(tile.getAttribute('data-num')) || 0
 
+		if(!bombs.has(num)){
+			tile.setAttribute('data-num', dataNum + 1)
+		}
+	})
 }
 
 	
@@ -115,15 +91,13 @@ function setup(){
 	 * @param {DomElement} tale - Обрабатываемая ячейка
 	 */
 function clickTile(tile){
-	console.log(tile)
 	if (tile.classList.contains('tile--checked') || tile.classList.contains('tile--flagged')) return
+
 	let coordinate = tile.getAttribute('data-tile')
 	if (bombs.has(coordinate)) {
-		// endGame(tile)
-		alert('Ты проиграл')
+		endGame(tile)
 		return
 	} else {
-		
 		let num = tile.getAttribute('data-num')
 		if (num != null) {
 			tile.classList.add('tile--checked')
@@ -190,29 +164,52 @@ function checkTile(coordinate){
 
 
 function createTile(indexId){
+	function checkEndGame (){
+		return new Promise((resolve) => {
+			if(!isEndGame) resolve()
+		})
+	}
+	
 	let tile = document.createElement('div')
 	tile.classList.add('tile')
-	// till.id = `tile_${indexId}`
 
 	tile.addEventListener('mousedown', ()=> {
-		tile.classList.add('tile--focus')
+		checkEndGame()
+			.then(()=>{
+				tile.classList.add('tile--focus')
+			})
 	})
 		
 	tile.addEventListener('mouseout', ()=> {
-		tile.classList.remove('tile--focus')
+		checkEndGame()
+			.then(()=>{
+				tile.classList.remove('tile--focus')
+			})
 	})
 
 	tile.addEventListener('click', function(e) {
-		if(isInitialClick){
-			setup(e.target)
-			isInitialClick = false
-		}
-		clickTile(tile)
-
+		checkEndGame()
+			.then(()=> {
+				if(isInitialClick){
+					setup(e.target)
+					isInitialClick = false
+				}
+				clickTile(tile)
+			})
 	})
 
 	board.appendChild(tile)
 }
 
+
+function endGame(tile){
+	isEndGame = true	
+
+	tile.classList.add('tile-bomb--focus')
+
+	bombs.forEach((bombCoords) => {
+		document.querySelector(`.tile[data-tile="${bombCoords}"]`).classList.add('tile-bomb')
+	})
+}
 
 renderTile()
