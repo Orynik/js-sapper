@@ -1,3 +1,8 @@
+#game-info {
+  height: 40px;
+  background-color: gray;
+}
+
 #board {
   display: flex;
   flex-flow: row wrap;
@@ -69,17 +74,18 @@
   height: 26px;
   background-image: url("../img/sprite.png");
   background-position: 0 -24px;
+  cursor: pointer;
 }
-.start-button--focus {
+.start-button:active {
   background-position: -27px -24px;
 }
 .start-button--tile-focus {
   background-position: -54px -24px;
 }
-.start-button--lose {
+.start-button--win {
   background-position: -81px -24px;
 }
-.start-button--win {
+.start-button--lose {
   background-position: -107px -24px;
 }
 

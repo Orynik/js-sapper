@@ -1,3 +1,38 @@
+const startButton = {
+	startButton: document.querySelector('.start-button'),
+	fearClass: 'start-button--tile-focus',
+	loseClass: 'start-button--lose',
+	winClass: 'start-button--win',
+	init: function(){
+		this.startButton.addEventListener('click', () =>{
+			startGame()
+		})
+	},
+	toggleFear: function (needEnable = true) {
+		if(needEnable){
+			this.startButton.classList.add(this.fearClass)
+			return
+		}
+
+		this.startButton.classList.remove(this.fearClass)
+	},
+	toggleLose: function(needEnable = true){
+		if(needEnable){
+			this.startButton.classList.add(this.loseClass)
+			return
+		}
+		this.startButton.classList.remove(this.loseClass)
+	},
+	toggleWin: function(needEnable = true){
+		if(needEnable){
+			this.startButton.classList.add(this.winClass)
+			return
+		}
+		this.startButton.classList.remove(this.winClass)
+	}
+}
+
+
 // Словарик для соотношения стилей и цифр
 let tileMap = new Map()
 
@@ -23,17 +58,18 @@ let boardSideLength = Math.sqrt(boardSize)
 let isInitialClick = true
 let board = document.getElementById('board')
 let isEndGame = false
+let isWinGame = false
 
 // Функции
 function renderTile(){
-	board.style.width = `${boardSideLength * tileWidth}px`
+	board.parentElement.style.width = `${boardSideLength * tileWidth}px`
 
 	for(let index = 0; index < boardSize; index++){
 		createTile(index)
 	}
 }
 
-function setup(initialTile){
+function setup(){
 	let bombsLeft = bombQty
 	let numberBuff = {}
 	let bombsBuff = {}
@@ -57,14 +93,15 @@ function setup(initialTile){
 
 		let random_boolean = Math.random() < 0.25
 
-		if (tile !== initialTile && random_boolean && bombsLeft) {
+		if (random_boolean && bombsLeft) {
 			bombsLeft--
+			// tile.setAttribute('data-bomb', '')
 			bombsBuff[`${x},${y}`] = true
 
 			if (x > 0) {
 				addInNumberBuff(`${x-1},${y}`)
 			}		
-			if (x < boardSize - 1)	{
+			if (x < boardSideLength - 1)	{
 				addInNumberBuff(`${x+1},${y}`)
 			}		
 			if (y > 0){
@@ -90,11 +127,12 @@ function setup(initialTile){
 
 		x++
 
-		if (x >= 16) {
+		if (x >= boardSideLength) {
 			x = 0
 			y++
 		}
 	})
+
 
 	Object.entries(numberBuff).forEach(([key,value]) => {
 		tilesState.set(key,{
@@ -102,6 +140,8 @@ function setup(initialTile){
 			...(Object.hasOwn(bombsBuff,key) && {hasBomb: true}),
 		}) 
 	}) 
+
+	console.log(numberBuff,tilesState)
 }
 
 	
@@ -121,9 +161,9 @@ function clickTile(tile){
 		} else {
 			let num = tilesState.get(coordinate).count
 			tile.classList.add('tile--checked')
-			tile.classList.add(`tile${tileMap.get(+num)}`)
+			tile.classList.add(`tile${tileMap.get(num)}`)
 			setTimeout(() => {
-				// checkVictory()
+				checkVictory()
 			}, 100)
 		}
 		return
@@ -138,7 +178,6 @@ function clickTile(tile){
 	 * 
 	 * @param {DomElement} tale - Обрабатываемая ячейка
 	 */
-
 function checkTile(coordinate){
 	let coords = coordinate.split(',')
 	let x = parseInt(coords[0])
@@ -166,7 +205,7 @@ function checkTile(coordinate){
 			let targetNW = document.querySelectorAll(`[data-tile="${x-1},${y-1}"`)[0]
 			clickTile(targetNW, `${x-1},${y-1}`)
 		}
-		if (x < 16 - 1 && y < boardSideLength - 1) {
+		if (x < boardSideLength - 1 && y < boardSideLength - 1) {
 			let targetSE = document.querySelectorAll(`[data-tile="${x+1},${y+1}"`)[0]
 			clickTile(targetSE, `${x+1},${y+1}`)
 		}
@@ -183,10 +222,10 @@ function checkTile(coordinate){
 }
 
 
-function createTile(indexId){
+function createTile(){
 	function checkEndGame (){
 		return new Promise((resolve) => {
-			if(!isEndGame) resolve()
+			if(!isEndGame && !isWinGame) resolve()
 		})
 	}
 	
@@ -197,6 +236,7 @@ function createTile(indexId){
 		checkEndGame()
 			.then(()=>{
 				tile.classList.add('tile--focus')
+				startButton.toggleFear()
 			})
 	})
 		
@@ -204,6 +244,7 @@ function createTile(indexId){
 		checkEndGame()
 			.then(()=>{
 				tile.classList.remove('tile--focus')
+				startButton.toggleFear(false)
 			})
 	})
 
@@ -231,6 +272,43 @@ function endGame(tile){
 		if(!Object.hasOwn(value,'hasBomb')) return
 		document.querySelector(`.tile[data-tile="${key}"]`).classList.add('tile-bomb')
 	})
+
+	startButton.toggleLose()
 }
 
+function checkVictory(){
+	let win = true
+
+	// document.querySelectorAll('.tile').forEach((tile) => {
+	// 	let coordinate = tile.getAttribute('data-tile')
+	// 	let hasBomb = Object.hasOwn(tilesState.get(coordinate),'hasBomb')
+	//
+	// 	if (!(tile.classList.contains('tile--checked') && hasBomb)) win = false
+	// })
+	//
+	// if(win){
+	// 	startButton.toggleWin()
+	// 	isWinGame = win
+	// }
+}
+
+function startGame(){
+	isEndGame = false
+	isWinGame = false
+	isInitialClick = true
+
+	startButton.toggleLose(false)
+
+	startButton.toggleWin(false)
+
+
+	tilesState.clear()
+
+	document.querySelectorAll('.tile').forEach((el) => {
+		el.className = 'tile'
+	})
+
+}
+
+startButton.init()
 renderTile()

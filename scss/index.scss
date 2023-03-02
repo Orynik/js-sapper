@@ -1,3 +1,8 @@
+#game-info{
+  height: 40px;
+  background-color: gray;
+}
+
 #board {
   display: flex;
   flex-flow: row wrap;
@@ -94,8 +99,9 @@
   height: 26px;
   background-image: url("../img/sprite.png");
   background-position: 0 -24px;
+  cursor: pointer;
 
-  &--focus {
+  &:active {
     background-position: -27px -24px;
   }
 
@@ -103,11 +109,11 @@
     background-position: -54px -24px;
   }
 
-  &--lose {
+  &--win {
     background-position: -81px -24px;
   }
 
-  &--win {
+  &--lose {
     background-position: -107px -24px;
   }
 }
