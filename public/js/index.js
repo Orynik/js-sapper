@@ -57,6 +57,7 @@ let boardSideLength = Math.sqrt(boardSize)
 // Рабочие переменные
 let isInitialClick = true
 let board = document.getElementById('board')
+let tiles
 let isEndGame = false
 let isWinGame = false
 
@@ -67,9 +68,11 @@ function renderTile(){
 	for(let index = 0; index < boardSize; index++){
 		createTile(index)
 	}
+
+	tiles = document.querySelectorAll('.tile')
 }
 
-function setup(){
+function setup(initialTile = null){
 	let bombsLeft = bombQty
 	let numberBuff = {}
 	let bombsBuff = {}
@@ -79,7 +82,10 @@ function setup(){
 
 
 	//Вычисление позиций бомб
-	document.querySelectorAll('.tile').forEach((tile) => {
+	//Запись текущих номеров
+	// Двойной проход по массиву, можно ли упростить не создавая два массива и не мешая их на ходу?
+	// Использовал Map только из-за удобства использования
+	tiles.forEach((tile) => {
 		function addInNumberBuff(key) {
 			if(Object.hasOwn(numberBuff,key)){
 				numberBuff[key]++
@@ -93,9 +99,8 @@ function setup(){
 
 		let random_boolean = Math.random() < 0.25
 
-		if (random_boolean && bombsLeft) {
+		if (tile !== initialTile && random_boolean && bombsLeft) {
 			bombsLeft--
-			// tile.setAttribute('data-bomb', '')
 			bombsBuff[`${x},${y}`] = true
 
 			if (x > 0) {
@@ -132,16 +137,24 @@ function setup(){
 			y++
 		}
 	})
+	
+	tiles.forEach((tile) => {
+		let coord = tile.dataset.tile
 
+		let tileData = {}
 
-	Object.entries(numberBuff).forEach(([key,value]) => {
-		tilesState.set(key,{
-			count: value,
-			...(Object.hasOwn(bombsBuff,key) && {hasBomb: true}),
-		}) 
-	}) 
-
-	console.log(numberBuff,tilesState)
+		if(Object.hasOwn(bombsBuff,coord)){
+			tileData.hasBomb = bombsBuff[coord]
+		}else if(Object.hasOwn(numberBuff,coord)){
+			tileData.count = numberBuff[coord]
+		}else{
+			tileData = null
+		}
+	
+		if(tileData !== null) {
+			tilesState.set(coord, tileData)
+		}
+	})
 }
 
 	
@@ -154,20 +167,24 @@ function clickTile(tile){
 	if (tile.classList.contains('tile--checked') || tile.classList.contains('tile--flagged')) return
 
 	let coordinate = tile.getAttribute('data-tile')
-	
+
 	if(tilesState.has(coordinate)){
 		if (tilesState.get(coordinate).hasBomb) {
 			endGame(tile)
-		} else {
+		
+		} else if (tilesState.get(coordinate).count){
 			let num = tilesState.get(coordinate).count
+
 			tile.classList.add('tile--checked')
 			tile.classList.add(`tile${tileMap.get(num)}`)
+
 			setTimeout(() => {
 				checkVictory()
 			}, 100)
 		}
 		return
 	}
+	
 
 	checkTile(coordinate)
 	tile.classList.add('tile--checked')
@@ -298,16 +315,15 @@ function startGame(){
 	isInitialClick = true
 
 	startButton.toggleLose(false)
-
 	startButton.toggleWin(false)
-
 
 	tilesState.clear()
 
-	document.querySelectorAll('.tile').forEach((el) => {
-		el.className = 'tile'
+	tiles.forEach((el) => {
+		el.remove()
 	})
 
+	renderTile()
 }
 
 startButton.init()
