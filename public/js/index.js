@@ -36,7 +36,12 @@ const startButton = {
 
 const bombCounter = {
 	bombEl: document.querySelector('.bomb-indicate'),
+	constBombQty: 40,
 	bombQty: 40,
+
+	resetQty() {
+		this.bombQty = 40
+	},
 
 	renderBombQty() {
 		this.bombEl.innerHTML = this.bombQty
@@ -120,8 +125,9 @@ function setup(initialTile = null){
 		tile.setAttribute('data-tile', `${x},${y}`)
 
 		let random_boolean = Math.random() < 0.25
-
+		
 		if (tile !== initialTile && random_boolean && bombsLeft) {
+
 			bombsLeft--
 			bombsBuff[`${x},${y}`] = true
 
@@ -354,25 +360,23 @@ function endGame(tile){
 }
 
 function checkVictory(){
-	let win = true
 
-	// document.querySelectorAll('.tile').forEach((tile) => {
-	// 	let coordinate = tile.getAttribute('data-tile')
-	// 	let hasBomb = Object.hasOwn(tilesState.get(coordinate),'hasBomb')
+	// 1. Проверить, все ли поля открыты (Без учета бомб)
 	//
-	// 	if (!(tile.classList.contains('tile--checked') && hasBomb)) win = false
-	// })
-	//
-	// if(win){
-	// 	startButton.toggleWin()
-	// 	isWinGame = win
-	// }
+	const isAllTileOpen = document.querySelectorAll('.tile--checked').length === boardSize - 1 
+
+	if(isAllTileOpen){
+		startButton.toggleWin()
+		isWinGame = true
+	}
 }
 
 function startGame(){
 	isEndGame = false
 	isWinGame = false
 	isInitialClick = true
+	
+	bombCounter.resetQty()
 
 	startButton.toggleLose(false)
 	startButton.toggleWin(false)
