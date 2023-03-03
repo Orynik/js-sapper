@@ -1,14 +1,16 @@
+// Рабочие объекты
 const startButton = {
 	startButton: document.querySelector('.start-button'),
 	fearClass: 'start-button--tile-focus',
 	loseClass: 'start-button--lose',
 	winClass: 'start-button--win',
-	init: function(){
+
+	init(){
 		this.startButton.addEventListener('click', () =>{
 			startGame()
 		})
 	},
-	toggleFear: function (needEnable = true) {
+	toggleFear(needEnable = true) {
 		if(needEnable){
 			this.startButton.classList.add(this.fearClass)
 			return
@@ -16,19 +18,38 @@ const startButton = {
 
 		this.startButton.classList.remove(this.fearClass)
 	},
-	toggleLose: function(needEnable = true){
+	toggleLose(needEnable = true){
 		if(needEnable){
 			this.startButton.classList.add(this.loseClass)
 			return
 		}
 		this.startButton.classList.remove(this.loseClass)
 	},
-	toggleWin: function(needEnable = true){
+	toggleWin(needEnable = true){
 		if(needEnable){
 			this.startButton.classList.add(this.winClass)
 			return
 		}
 		this.startButton.classList.remove(this.winClass)
+	},
+}
+
+const bombCounter = {
+	bombEl: document.querySelector('.bomb-indicate'),
+	bombQty: 40,
+
+	renderBombQty() {
+		this.bombEl.innerHTML = this.bombQty
+	},
+	decrementBomb() {
+		if(!this.bombQty) return
+
+		this.bombQty--
+		this.renderBombQty()
+	},
+	incrementBomb(){
+		this.bombQty++
+		this.renderBombQty()
 	}
 }
 
@@ -50,7 +71,6 @@ let tilesState = new Map()
 
 // Консты для расчетов
 const tileWidth = 17
-const bombQty = 40
 let boardSize = 16 * 16
 let boardSideLength = Math.sqrt(boardSize)
 
@@ -69,11 +89,13 @@ function renderTile(){
 		createTile(index)
 	}
 
+
+	bombCounter.renderBombQty()
 	tiles = document.querySelectorAll('.tile')
 }
 
 function setup(initialTile = null){
-	let bombsLeft = bombQty
+	let bombsLeft = bombCounter.bombQty
 	let numberBuff = {}
 	let bombsBuff = {}
 
@@ -158,20 +180,19 @@ function setup(initialTile = null){
 }
 
 	
-/**
+/**j
 	 * Отрисовка определенной ячейки
-	 * 
 	 * @param {DomElement} tale - Обрабатываемая ячейка
 	 */
 function clickTile(tile){
-	if (tile.classList.contains('tile--checked') || tile.classList.contains('tile--flagged')) return
+	if (tile.classList.contains('tile--checked') || tile.classList.contains('tile--flagged') || tile.classList.contains('tile-question')) return
 
 	let coordinate = tile.getAttribute('data-tile')
+	// let isQuestionTile = tile.querySelector.contains('tile-question')
 
 	if(tilesState.has(coordinate)){
 		if (tilesState.get(coordinate).hasBomb) {
 			endGame(tile)
-		
 		} else if (tilesState.get(coordinate).count){
 			let num = tilesState.get(coordinate).count
 
@@ -184,7 +205,6 @@ function clickTile(tile){
 		}
 		return
 	}
-	
 
 	checkTile(coordinate)
 	tile.classList.add('tile--checked')
@@ -199,41 +219,43 @@ function checkTile(coordinate){
 	let coords = coordinate.split(',')
 	let x = parseInt(coords[0])
 	let y = parseInt(coords[1])
+
+
 	
 	setTimeout(() => {
 		if (x > 0) {
 			let targetW = document.querySelectorAll(`[data-tile="${x-1},${y}"`)[0]
-			clickTile(targetW, `${x-1},${y}`)
+			clickTile(targetW, false)
 		}
 		if (x < boardSideLength - 1) {
 			let targetE = document.querySelectorAll(`[data-tile="${x+1},${y}"`)[0]
-			clickTile(targetE, `${x+1},${y}`)
+			clickTile(targetE, false)
 		}
 		if (y > 0) {
 			let targetN = document.querySelectorAll(`[data-tile="${x},${y-1}"]`)[0]
-			clickTile(targetN, `${x},${y-1}`)
+			clickTile(targetN, false)
 		}
 		if (y < boardSideLength - 1) {
 			let targetS = document.querySelectorAll(`[data-tile="${x},${y+1}"]`)[0]
-			clickTile(targetS, `${x},${y+1}`)
+			clickTile(targetS, false)
 		}
 		
 		if (x > 0 && y > 0) {
 			let targetNW = document.querySelectorAll(`[data-tile="${x-1},${y-1}"`)[0]
-			clickTile(targetNW, `${x-1},${y-1}`)
+			clickTile(targetNW, false)
 		}
 		if (x < boardSideLength - 1 && y < boardSideLength - 1) {
 			let targetSE = document.querySelectorAll(`[data-tile="${x+1},${y+1}"`)[0]
-			clickTile(targetSE, `${x+1},${y+1}`)
+			clickTile(targetSE, false)
 		}
 		
 		if (y > 0 && x < boardSideLength - 1) {
 			let targetNE = document.querySelectorAll(`[data-tile="${x+1},${y-1}"]`)[0]
-			clickTile(targetNE, `${x+1},${y-1}`)
+			clickTile(targetNE, false)
 		}
 		if (x > 0 && y < boardSideLength - 1) {
 			let targetSW = document.querySelectorAll(`[data-tile="${x-1},${y+1}"`)[0]
-			clickTile(targetSW, `${x-1},${y+1}`)
+			clickTile(targetSW, false)
 		}
 	}, 10)
 }
@@ -252,7 +274,10 @@ function createTile(){
 	tile.addEventListener('mousedown', ()=> {
 		checkEndGame()
 			.then(()=>{
+				if(tile.classList.contains('tile-question') || tile.classList.contains('tile--flagged')) return
+
 				tile.classList.add('tile--focus')
+
 				startButton.toggleFear()
 			})
 	})
@@ -260,7 +285,10 @@ function createTile(){
 	tile.addEventListener('mouseout', ()=> {
 		checkEndGame()
 			.then(()=>{
+				if(tile.classList.contains('tile-question') || tile.classList.contains('tile--flagged')) return
+
 				tile.classList.remove('tile--focus')
+
 				startButton.toggleFear(false)
 			})
 	})
@@ -268,11 +296,43 @@ function createTile(){
 	tile.addEventListener('click', function(e) {
 		checkEndGame()
 			.then(()=> {
+				if(tile.classList.contains('tile-question') || tile.classList.contains('tile--flagged')) return
+
 				if(isInitialClick){
 					setup(e.target)
 					isInitialClick = false
 				}
 				clickTile(tile)
+			})
+	})
+
+	tile.addEventListener('contextmenu', function(e){
+		e.preventDefault()
+		
+		checkEndGame()
+			.then(() =>{
+				if(!e.target.classList.contains('tile--checked'))	{
+					if(e.target.classList.contains('tile--flagged')){
+						bombCounter.incrementBomb()
+
+						e.target.classList.remove('tile--flagged')
+						e.target.classList.add('tile-question')
+					}
+					else if(e.target.classList.contains('tile-question')){
+						e.target.classList.remove('tile-question')
+						e.target.classList.remove('tile-question--focus')
+						e.target.classList.remove('tile--flagged')
+					}
+					else{
+						if(!bombCounter.bombQty) return
+						bombCounter.decrementBomb()
+
+						e.target.classList.add('tile--flagged')
+					}
+				}
+
+
+				e.target.classList.remove('tile--focus')
 			})
 	})
 
@@ -325,6 +385,8 @@ function startGame(){
 
 	renderTile()
 }
+
+
 
 startButton.init()
 renderTile()

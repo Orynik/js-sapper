@@ -87,9 +87,9 @@
 }
 
 .tile-question {
-  background-position: -51px -50px;
+   background-position: -51px -50px;
 
-  &--focus {
+  &--focus{
     background-position: -68px -50px;
   }
 }
@@ -163,5 +163,4 @@
   &--nine {
     background-position: -111px 0;
   }
-
 }
