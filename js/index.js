@@ -1,4 +1,4 @@
-// Рабочие объекты
+// Рабочие объект
 const startButton = {
 	startButton: document.querySelector('.start-button'),
 	fearClass: 'start-button--tile-focus',
@@ -36,6 +36,7 @@ const startButton = {
 
 const bombCounter = {
 	bombEl: document.querySelector('.bomb-indicate'),
+	arrayCountersElems: [],
 	constBombQty: 40,
 	bombQty: 40,
 
@@ -44,7 +45,23 @@ const bombCounter = {
 	},
 
 	renderBombQty() {
-		this.bombEl.innerHTML = this.bombQty
+		this.bombEl.querySelectorAll('.numeric').forEach((numericItem) =>{
+			numericItem.remove()
+		})
+			
+		let first = document.createElement('div')
+		let second = document.createElement('div')
+		let third = document.createElement('div')
+	
+		this.arrayCountersElems = [first,second,third]
+
+		renderNumericFields(this.bombQty,this.arrayCountersElems)
+		
+		this.bombEl.appendChild(first)
+		this.bombEl.appendChild(second)
+		this.bombEl.appendChild(third)
+
+		// this.bombEl.innerHTML = this.bombQty
 	},
 	decrementBomb() {
 		if(!this.bombQty) return
@@ -58,10 +75,28 @@ const bombCounter = {
 	}
 }
 
+function renderNumericFields(counter, arrElements) {
+	let stringCounter = String(counter)
+	let startCounterRender = 0
+	arrElements.forEach((numericItem,index)=>{
+		if(arrElements.length - index <= stringCounter.length){
+			let classPostfix = tileMap.get(+stringCounter[startCounterRender])
+			console.log(numericItem, classPostfix,counter)
+			numericItem.classList.add('numeric', `numeric${classPostfix}`)
+			startCounterRender++
+
+			return
+		}
+
+		numericItem.classList.add('numeric', 'numeric--zero')
+	})
+}
 
 // Словарик для соотношения стилей и цифр
 let tileMap = new Map()
 
+
+tileMap.set(0,'--zero')
 tileMap.set(1,'--one')
 tileMap.set(2,'--two',)
 tileMap.set(3,'--three')
@@ -70,7 +105,7 @@ tileMap.set(5,'--five')
 tileMap.set(6,'--six')
 tileMap.set(7,'--seven')
 tileMap.set(8,'--eight')
-
+tileMap.set(9,'--nine')
 
 let tilesState = new Map()
 
@@ -165,6 +200,7 @@ function setup(initialTile = null){
 			y++
 		}
 	})
+
 	
 	tiles.forEach((tile) => {
 		let coord = tile.dataset.tile
@@ -194,7 +230,6 @@ function clickTile(tile){
 	if (tile.classList.contains('tile--checked') || tile.classList.contains('tile--flagged') || tile.classList.contains('tile-question')) return
 
 	let coordinate = tile.getAttribute('data-tile')
-	// let isQuestionTile = tile.querySelector.contains('tile-question')
 
 	if(tilesState.has(coordinate)){
 		if (tilesState.get(coordinate).hasBomb) {
@@ -227,7 +262,7 @@ function checkTile(coordinate){
 	let y = parseInt(coords[1])
 
 
-	
+	// Переписать querySelectorAll -> querySelector
 	setTimeout(() => {
 		if (x > 0) {
 			let targetW = document.querySelectorAll(`[data-tile="${x-1},${y}"`)[0]
@@ -277,10 +312,10 @@ function createTile(){
 	let tile = document.createElement('div')
 	tile.classList.add('tile')
 
-	tile.addEventListener('mousedown', ()=> {
+	tile.addEventListener('mousedown', (e)=> {
 		checkEndGame()
 			.then(()=>{
-				if(tile.classList.contains('tile-question') || tile.classList.contains('tile--flagged')) return
+				if(tile.classList.contains('tile-question') || tile.classList.contains('tile--flagged') || e.button === 2) return
 
 				tile.classList.add('tile--focus')
 
@@ -360,7 +395,6 @@ function endGame(tile){
 }
 
 function checkVictory(){
-
 	// 1. Проверить, все ли поля открыты (Без учета бомб)
 	//
 	const isAllTileOpen = document.querySelectorAll('.tile--checked').length === boardSize - 1 
@@ -389,8 +423,6 @@ function startGame(){
 
 	renderTile()
 }
-
-
 
 startButton.init()
 renderTile()

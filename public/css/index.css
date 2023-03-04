@@ -1,6 +1,17 @@
+body {
+  background-color: black;
+}
+
 #game-info {
+  display: flex;
   height: 40px;
+  justify-content: space-between;
+  align-items: center;
   background-color: gray;
+}
+
+.bomb-indicate {
+  display: flex;
 }
 
 #board {
