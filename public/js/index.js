@@ -99,8 +99,10 @@ const stopwatch = {
 		this.el.appendChild(four)
 	},
 	start(){
-		this.init()
-		this.inst = setInterval(() => {
+		this.step()
+	},
+	step(){
+		this.inst = setTimeout(() => {
 			if(!this.currentValue) {
 				isEndGame = true
 				this.stop()
@@ -108,6 +110,7 @@ const stopwatch = {
 			this.init()
 			this.currentValue--
 
+			this.step()
 		},1000)
 	},
 	clear(){
@@ -115,7 +118,7 @@ const stopwatch = {
 		this.currentValue = 2400
 	}, 
 	stop(){ 
-		clearInterval(this.inst)
+		clearTimeout(this.inst)
 	}
 }
 
