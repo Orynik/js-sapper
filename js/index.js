@@ -432,8 +432,16 @@ function endGame(tile){
 	tile.classList.add('tile-bomb--focus')
 
 	tilesState.forEach((value,key) =>{
+		let currentTile = document.querySelector(`.tile[data-tile="${key}"]`)
 		if(!Object.hasOwn(value,'hasBomb')) return
-		document.querySelector(`.tile[data-tile="${key}"]`).classList.add('tile-bomb')
+
+		if(currentTile.classList.contains('tile--flagged')){
+			currentTile.classList.add('tile-bomb', 'tile-bomb--disable')
+			return
+		}
+
+		currentTile.classList.add('tile-bomb')
+		
 	})
 
 	startButton.toggleLose()
@@ -441,8 +449,6 @@ function endGame(tile){
 }
 
 function checkVictory(){
-	// 1. Проверить, все ли поля открыты (Без учета бомб)
-	//
 	const isAllTileOpen = document.querySelectorAll('.tile--checked').length === boardSize - 1 
 
 	if(isAllTileOpen){
