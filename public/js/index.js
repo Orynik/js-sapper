@@ -75,13 +75,56 @@ const bombCounter = {
 	}
 }
 
+const stopwatch = {
+	el: document.querySelector('.stopwatch'),
+	inst: null,
+	currentValue: 2400,
+	init(){
+		this.el.querySelectorAll('.numeric').forEach((numericItem) =>{
+			numericItem.remove()
+		})
+
+		let first = document.createElement('div')
+		let second = document.createElement('div')
+		let third = document.createElement('div')
+		let four = document.createElement('div')
+	
+		this.arrayCountersElems = [first,second,third,four]
+
+		renderNumericFields(this.currentValue,this.arrayCountersElems)
+		
+		this.el.appendChild(first)
+		this.el.appendChild(second)
+		this.el.appendChild(third)
+		this.el.appendChild(four)
+	},
+	start(){
+		this.init()
+		this.inst = setInterval(() => {
+			if(!this.currentValue) {
+				isEndGame = true
+				this.stop()
+			}
+			this.init()
+			this.currentValue--
+
+		},1000)
+	},
+	clear(){
+		this.stop()
+		this.currentValue = 2400
+	}, 
+	stop(){ 
+		clearInterval(this.inst)
+	}
+}
+
 function renderNumericFields(counter, arrElements) {
 	let stringCounter = String(counter)
 	let startCounterRender = 0
 	arrElements.forEach((numericItem,index)=>{
 		if(arrElements.length - index <= stringCounter.length){
 			let classPostfix = tileMap.get(+stringCounter[startCounterRender])
-			console.log(numericItem, classPostfix,counter)
 			numericItem.classList.add('numeric', `numeric${classPostfix}`)
 			startCounterRender++
 
@@ -91,7 +134,6 @@ function renderNumericFields(counter, arrElements) {
 		numericItem.classList.add('numeric', 'numeric--zero')
 	})
 }
-
 // Словарик для соотношения стилей и цифр
 let tileMap = new Map()
 
@@ -108,7 +150,6 @@ tileMap.set(8,'--eight')
 tileMap.set(9,'--nine')
 
 let tilesState = new Map()
-
 // Консты для расчетов
 const tileWidth = 17
 let boardSize = 16 * 16
@@ -122,6 +163,7 @@ let isEndGame = false
 let isWinGame = false
 
 // Функции
+
 function renderTile(){
 	board.parentElement.style.width = `${boardSideLength * tileWidth}px`
 
@@ -129,8 +171,8 @@ function renderTile(){
 		createTile(index)
 	}
 
-
 	bombCounter.renderBombQty()
+	stopwatch.init()
 	tiles = document.querySelectorAll('.tile')
 }
 
@@ -219,10 +261,13 @@ function setup(initialTile = null){
 			tilesState.set(coord, tileData)
 		}
 	})
+
+
+	stopwatch.start()
 }
 
 	
-/**j
+/**
 	 * Отрисовка определенной ячейки
 	 * @param {DomElement} tale - Обрабатываемая ячейка
 	 */
@@ -392,6 +437,7 @@ function endGame(tile){
 	})
 
 	startButton.toggleLose()
+	stopwatch.stop()
 }
 
 function checkVictory(){
@@ -402,6 +448,7 @@ function checkVictory(){
 	if(isAllTileOpen){
 		startButton.toggleWin()
 		isWinGame = true
+		stopwatch.stop()
 	}
 }
 
@@ -415,6 +462,7 @@ function startGame(){
 	startButton.toggleLose(false)
 	startButton.toggleWin(false)
 
+	stopwatch.clear()
 	tilesState.clear()
 
 	tiles.forEach((el) => {
