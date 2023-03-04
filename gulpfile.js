@@ -4,7 +4,7 @@ var sass        = require('gulp-sass')(require('sass'))
 var minify      = require('gulp-minify')
 
 gulp.task('min-js', function() {
-	return gulp.src('js/index.js')
+	return gulp.src('js/*.js')
 		.pipe(minify({
 			ext: {
 				min: '.min.js'
@@ -21,7 +21,7 @@ gulp.task('serve', function() {
 		server: './public'
 	})
 
-	gulp.watch('js/*.js', gulp.series('min-js'))
+	gulp.watch('js/**/*.js', gulp.series('min-js'))
 	gulp.watch('scss/**/*.scss', gulp.series('sass'))
 	gulp.watch('public/*.html').on('change', browserSync.reload)
 })
