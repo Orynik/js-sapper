@@ -303,6 +303,12 @@ function checkVictory(){
 	const isAllTileOpen = document.querySelectorAll('.tile--checked').length === boardSize - 1 
 
 	if(isAllTileOpen){
+		document.querySelectorAll('.tile:not(.tile--checked)').forEach((bombEl) => {
+			if(bombEl.classList.contains('tile--flagged')) return
+			
+			bombEl.classList.add('tile--flagged')
+
+		})
 		startButton.toggleWin()
 		isWinGame = true
 		stopwatch.stop()

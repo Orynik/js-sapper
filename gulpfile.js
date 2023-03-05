@@ -4,7 +4,7 @@ var sass        = require('gulp-sass')(require('sass'))
 var minify      = require('gulp-minify')
 
 gulp.task('min-js', function() {
-	return gulp.src('js/*.js')
+	return gulp.src('js/**/*.js')
 		.pipe(minify({
 			ext: {
 				min: '.min.js'
@@ -16,7 +16,6 @@ gulp.task('min-js', function() {
 
 // Static Server + watching scss/html files
 gulp.task('serve', function() {
-
 	browserSync.init({
 		server: './public'
 	})
@@ -28,7 +27,7 @@ gulp.task('serve', function() {
 
 // Compile sass into CSS & auto-inject into browsers
 gulp.task('sass', function() {
-	return gulp.src('scss/index.scss')
+	return gulp.src('scss/**/*.scss')
 		.pipe(sass().on('error', sass.logError))
 		.pipe(gulp.dest('public/css'))
 		.pipe(browserSync.stream())
